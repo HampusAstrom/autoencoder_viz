@@ -63,7 +63,7 @@ def plot_results(models,
     x_test, y_test = data
     os.makedirs(model_name, exist_ok=True)
 
-    filename = os.path.join(model_name, "vae_mean.png")
+    filename = os.path.join(model_name, "conv_vae_mean.png")
     # display a 2D plot of the digit classes in the latent space
     z_mean, _, _ = encoder.predict(x_test,
                                    batch_size=batch_size)
@@ -75,7 +75,7 @@ def plot_results(models,
     plt.savefig(filename)
     plt.show()
 
-    filename = os.path.join(model_name, "digits_over_latent.png")
+    filename = os.path.join(model_name, "conv_digits_over_latent.png")
     # display a 30x30 2D manifold of digits
     n = 30
     digit_size = 28
@@ -123,7 +123,7 @@ input_shape = (28, 28, 1)
 intermediate_dim = 512
 batch_size = 128
 latent_dim = 2
-epochs = 3 # 50
+epochs = 200 # 50
 
 from keras.layers import Input, Dense, Conv2D, MaxPooling2D, UpSampling2D, Flatten, Reshape
 from keras.models import Model
@@ -155,7 +155,7 @@ z = Lambda(sampling, output_shape=(latent_dim,), name='z')([z_mean, z_log_var])
 # instantiate encoder model
 encoder = Model(inputs, [z_mean, z_log_var, z], name='encoder')
 encoder.summary()
-plot_model(encoder, to_file='vae_mlp_encoder.png', show_shapes=True)
+plot_model(encoder, to_file='conv_vae_mlp_encoder.png', show_shapes=True)
 
 # build decoder model
 latent_inputs = Input(shape=(latent_dim,), name='z_sampling')
@@ -175,7 +175,7 @@ outputs = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)
 # instantiate decoder model
 decoder = Model(latent_inputs, outputs, name='decoder')
 decoder.summary()
-plot_model(decoder, to_file='vae_mlp_decoder.png', show_shapes=True)
+plot_model(decoder, to_file='conv_vae_mlp_decoder.png', show_shapes=True)
 
 # instantiate VAE model
 outputs = decoder(encoder(inputs)[2])
@@ -210,7 +210,7 @@ if __name__ == '__main__':
     vae.compile(optimizer='adam')
     vae.summary()
     plot_model(vae,
-               to_file='vae_mlp.png',
+               to_file='conv_vae_mlp.png',
                show_shapes=True)
 
     if args.weights:
@@ -222,9 +222,9 @@ if __name__ == '__main__':
                 batch_size=batch_size,
                 validation_data=(x_test, None),
                 callbacks=[TensorBoard(log_dir='/tmp/autoencoder_va_conv')])
-        vae.save_weights('vae_mlp_mnist.h5')
+        vae.save_weights('conv_vae_mlp_mnist.h5')
 
     plot_results(models,
                  data,
                  batch_size=batch_size,
-                 model_name="vae_mlp")
+                 model_name="conv_vae_mlp")
